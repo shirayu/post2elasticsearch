@@ -91,7 +91,7 @@ def main():
     oparser.add_argument("-i", "--input", dest="input", default="-")
     oparser.add_argument("-a", "--address", dest="address", default="http://localhost:9200")
     oparser.add_argument("--init", dest="init", default=False, action="store_true")
-    oparser.add_argument("--height", dest="height", default=None, type=float, help="meter")
+    oparser.add_argument("--height", dest="height", default=None, type=float, help="Your height (centimeter)")
     opts = oparser.parse_args()
 
     if opts.input == "-":
