@@ -60,12 +60,14 @@ def post_data(address, timestamp, pdata):
         sys.stderr.write("%s\n%s\n" % (err.reason, err.read().decode('utf8')))
 
 
-def operation(address, inf):
+def operation(address, inf, height=None):
     '''
     Main
     '''
     for line in inf:
         data = json.loads(line)
+        if data['weight'] is None:
+            continue
 
         timestamp = data['raw']['date']
         utc = str(datetime.utcfromtimestamp(timestamp))
@@ -75,6 +77,9 @@ def operation(address, inf):
             'fat_ratio': data['fat_ratio'],
             'fat_mass_weight': data['fat_mass_weight'],
         }
+        if (height is not None) and (height != 0):
+            bmi = (data['weight'] / height * 100 / height * 100)
+            pdata['body_mass_index'] = bmi
         post_data(address, timestamp, pdata)
 
 
@@ -86,6 +91,7 @@ def main():
     oparser.add_argument("-i", "--input", dest="input", default="-")
     oparser.add_argument("-a", "--address", dest="address", default="http://localhost:9200")
     oparser.add_argument("--init", dest="init", default=False, action="store_true")
+    oparser.add_argument("--height", dest="height", default=None, type=float, help="meter")
     opts = oparser.parse_args()
 
     if opts.input == "-":
@@ -96,7 +102,7 @@ def main():
     if opts.init:
         initialization(opts.address)
     else:
-        operation(opts.address, inf)
+        operation(opts.address, inf, opts.height)
 
 
 if __name__ == '__main__':
