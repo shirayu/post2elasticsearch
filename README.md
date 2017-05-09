@@ -1,6 +1,9 @@
 
 # post2elasticsearch
 
+[![CircleCI](https://circleci.com/gh/shirayu/post2elasticsearch.svg?style=svg)](https://circleci.com/gh/shirayu/post2elasticsearch)
+[![Apache License](http://img.shields.io/badge/license-APACHE2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+
 Post data to Elasticsearch.
 
 ```sh
