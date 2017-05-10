@@ -9,9 +9,13 @@ import codecs
 from datetime import datetime
 import sys
 import json
-import urllib.request
+import os
 
-INDEX_NAME = 'withings'
+sys.path.append(os.path.dirname(__file__))
+# pylint: disable=wrong-import-position
+import common
+# pylint: enable=wrong-import-position
+
 MAPPING = {
     "properties": {
         "date": {"type": "date", "format": "YYYY-MM-dd HH:mm:ss"}
@@ -19,48 +23,7 @@ MAPPING = {
 }
 
 
-def initialization(address):
-    '''
-    Initialize index
-    '''
-    base_url = address + '/' + INDEX_NAME
-    # Delete
-    try:
-        req = urllib.request.Request(url=base_url, method='DELETE')
-        urllib.request.urlopen(req)
-    except urllib.error.HTTPError as err:
-        sys.stderr.write("(delete) %s\n" % err)
-
-    # Put
-    req2 = urllib.request.Request(url=base_url, method='PUT')
-    urllib.request.urlopen(req2)
-
-    encoded_post_data = json.dumps(MAPPING).encode(encoding='ascii')
-    req3 = urllib.request.Request(url=base_url + '/log/_mapping',
-                                  data=encoded_post_data,
-                                  method='PUT')
-    res3 = urllib.request.urlopen(req3)
-    if res3.status == 200:
-        sys.stderr.write("OK. Initialized.\n")
-
-
-def post_data(address, timestamp, pdata):
-    '''
-    Post data
-    '''
-    base_url = "%s/%s/date/%d" % (address, INDEX_NAME, timestamp)
-
-    encoded_post_data = json.dumps(pdata).encode(encoding='ascii')
-    req = urllib.request.Request(url=base_url,
-                                 data=encoded_post_data,
-                                 method='POST')
-    try:
-        urllib.request.urlopen(req)
-    except urllib.error.HTTPError as err:
-        sys.stderr.write("%s\n%s\n" % (err.reason, err.read().decode('utf8')))
-
-
-def operation(address, inf, height=None):
+def operation(address, index_name, inf, height=None):
     '''
     Main
     '''
@@ -80,7 +43,7 @@ def operation(address, inf, height=None):
         if (height is not None) and (height != 0):
             bmi = (data['weight'] / height * 100 / height * 100)
             pdata['body_mass_index'] = bmi
-        post_data(address, timestamp, pdata)
+        common.post_data(address, index_name, "date", pdata, str(timestamp))
 
 
 def main():
@@ -93,6 +56,7 @@ def main():
     oparser.add_argument("--init", dest="init", default=False, action="store_true")
     oparser.add_argument("--height", dest="height", default=None,
                          type=float, help="Your height (centimeter)")
+    oparser.add_argument("--iname", dest="iname", default="withings")
     opts = oparser.parse_args()
 
     if opts.input == "-":
@@ -101,9 +65,9 @@ def main():
         inf = codecs.open(opts.input, "r", "utf8")
 
     if opts.init:
-        initialization(opts.address)
+        common.initialization(opts.address, opts.iname, MAPPING)
     else:
-        operation(opts.address, inf, opts.height)
+        operation(opts.address, opts.iname, inf, opts.height)
 
 
 if __name__ == '__main__':
