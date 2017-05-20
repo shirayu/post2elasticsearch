@@ -16,6 +16,7 @@ sys.path.append(os.path.dirname(__file__))
 import common
 # pylint: enable=wrong-import-position
 
+INDEX_NAME = 'withings'
 MAPPING = {
     "properties": {
         "date": {"type": "date", "format": "YYYY-MM-dd HH:mm:ss"}
@@ -56,7 +57,7 @@ def main():
     oparser.add_argument("--init", dest="init", default=False, action="store_true")
     oparser.add_argument("--height", dest="height", default=None,
                          type=float, help="Your height (centimeter)")
-    oparser.add_argument("--iname", dest="iname", default="withings")
+    oparser.add_argument("--iname", dest="iname", default=INDEX_NAME)
     opts = oparser.parse_args()
 
     if opts.input == "-":
